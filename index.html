@@ -225,6 +225,7 @@ body{display:flex;flex-direction:column;max-width:430px;margin:0 auto;min-height
           <button class="useg-btn active" id="ub-g" onclick="setIU('g')">g</button>
           <button class="useg-btn" id="ub-oz" onclick="setIU('oz')">oz</button>
           <button class="useg-btn" id="ub-lb" onclick="setIU('lb')">lb</button>
+          <button class="useg-btn" id="ub-pcs" onclick="setIU('pcs')" style="display:none">pcs</button>
         </div>
       </div>
       <div class="preview-bar" id="preview-bar"></div>
@@ -232,7 +233,7 @@ body{display:flex;flex-direction:column;max-width:430px;margin:0 auto;min-height
     </div>
     <div class="card" style="padding:14px;color:var(--text2);font-size:13px;line-height:1.65;">
       <strong style="color:var(--text);font-size:13px;">How it works</strong><br>
-      Search any food → select → enter amount in g, oz, or lb → calories and macros are calculated automatically.
+      Search any food → select → enter amount in g, oz, lb, or pieces → calories and macros are calculated automatically. The "pcs" button appears when a food has a known piece weight (e.g. 1 egg, 1 banana).
     </div>
     <div class="gap"></div>
   </div>
@@ -278,22 +279,22 @@ body{display:flex;flex-direction:column;max-width:430px;margin:0 auto;min-height
 
 <script>
 const DB=[
-  {n:"Chicken breast",e:"🍗",cal:165,p:31,c:0,f:3.6},
-  {n:"Chicken thigh",e:"🍗",cal:209,p:26,c:0,f:11},
+  {n:"Chicken breast",e:"🍗",cal:165,p:31,c:0,f:3.6,pcs:150},
+  {n:"Chicken thigh",e:"🍗",cal:209,p:26,c:0,f:11,pcs:100},
   {n:"Ground beef (lean)",e:"🥩",cal:215,p:26,c:0,f:12},
-  {n:"Beef steak",e:"🥩",cal:271,p:26,c:0,f:18},
-  {n:"Salmon",e:"🐟",cal:208,p:20,c:0,f:13},
-  {n:"Tuna (canned)",e:"🐟",cal:116,p:26,c:0,f:1},
-  {n:"Shrimp",e:"🦐",cal:99,p:24,c:0.2,f:0.3},
-  {n:"Whole egg",e:"🥚",cal:155,p:13,c:1.1,f:11},
-  {n:"Egg white",e:"🥚",cal:52,p:11,c:0.7,f:0.2},
+  {n:"Beef steak",e:"🥩",cal:271,p:26,c:0,f:18,pcs:200},
+  {n:"Salmon",e:"🐟",cal:208,p:20,c:0,f:13,pcs:150},
+  {n:"Tuna (canned)",e:"🐟",cal:116,p:26,c:0,f:1,pcs:185},
+  {n:"Shrimp",e:"🦐",cal:99,p:24,c:0.2,f:0.3,pcs:15},
+  {n:"Whole egg",e:"🥚",cal:155,p:13,c:1.1,f:11,pcs:55},
+  {n:"Egg white",e:"🥚",cal:52,p:11,c:0.7,f:0.2,pcs:33},
   {n:"Greek yogurt (full fat)",e:"🥛",cal:97,p:9,c:3.6,f:5},
   {n:"Greek yogurt (0% fat)",e:"🥛",cal:59,p:10,c:3.6,f:0.4},
   {n:"Cottage cheese",e:"🧀",cal:98,p:11,c:3.4,f:4.3},
-  {n:"Cheddar cheese",e:"🧀",cal:403,p:25,c:1.3,f:33},
+  {n:"Cheddar cheese",e:"🧀",cal:403,p:25,c:1.3,f:33,pcs:28},
   {n:"Milk (whole)",e:"🥛",cal:61,p:3.2,c:4.8,f:3.3},
   {n:"Milk (skim)",e:"🥛",cal:35,p:3.4,c:5,f:0.1},
-  {n:"Whey protein powder",e:"💪",cal:370,p:80,c:6,f:4},
+  {n:"Whey protein powder",e:"💪",cal:370,p:80,c:6,f:4,pcs:30},
   {n:"Tofu (firm)",e:"🫘",cal:76,p:8,c:1.9,f:4.2},
   {n:"Lentils (cooked)",e:"🫘",cal:116,p:9,c:20,f:0.4},
   {n:"Chickpeas (cooked)",e:"🫘",cal:164,p:8.9,c:27,f:2.6},
@@ -303,38 +304,38 @@ const DB=[
   {n:"Oats (dry)",e:"🌾",cal:389,p:17,c:66,f:7},
   {n:"Oatmeal (cooked)",e:"🥣",cal:71,p:2.5,c:12,f:1.5},
   {n:"Pasta (cooked)",e:"🍝",cal:131,p:5,c:25,f:1.1},
-  {n:"White bread",e:"🍞",cal:265,p:9,c:49,f:3.2},
-  {n:"Whole wheat bread",e:"🍞",cal:247,p:13,c:41,f:4.2},
-  {n:"Potato (boiled)",e:"🥔",cal:87,p:1.9,c:20,f:0.1},
-  {n:"Sweet potato",e:"🍠",cal:90,p:2,c:21,f:0.1},
+  {n:"White bread",e:"🍞",cal:265,p:9,c:49,f:3.2,pcs:30},
+  {n:"Whole wheat bread",e:"🍞",cal:247,p:13,c:41,f:4.2,pcs:30},
+  {n:"Potato (boiled)",e:"🥔",cal:87,p:1.9,c:20,f:0.1,pcs:150},
+  {n:"Sweet potato",e:"🍠",cal:90,p:2,c:21,f:0.1,pcs:130},
   {n:"Quinoa (cooked)",e:"🌾",cal:120,p:4.4,c:22,f:1.9},
-  {n:"Banana",e:"🍌",cal:89,p:1.1,c:23,f:0.3},
-  {n:"Apple",e:"🍎",cal:52,p:0.3,c:14,f:0.2},
-  {n:"Orange",e:"🍊",cal:47,p:0.9,c:12,f:0.1},
+  {n:"Banana",e:"🍌",cal:89,p:1.1,c:23,f:0.3,pcs:120},
+  {n:"Apple",e:"🍎",cal:52,p:0.3,c:14,f:0.2,pcs:182},
+  {n:"Orange",e:"🍊",cal:47,p:0.9,c:12,f:0.1,pcs:130},
   {n:"Blueberries",e:"🫐",cal:57,p:0.7,c:14,f:0.3},
-  {n:"Strawberries",e:"🍓",cal:32,p:0.7,c:7.7,f:0.3},
-  {n:"Mango",e:"🥭",cal:60,p:0.8,c:15,f:0.4},
-  {n:"Avocado",e:"🥑",cal:160,p:2,c:9,f:15},
+  {n:"Strawberries",e:"🍓",cal:32,p:0.7,c:7.7,f:0.3,pcs:12},
+  {n:"Mango",e:"🥭",cal:60,p:0.8,c:15,f:0.4,pcs:200},
+  {n:"Avocado",e:"🥑",cal:160,p:2,c:9,f:15,pcs:150},
   {n:"Broccoli",e:"🥦",cal:35,p:2.4,c:7.2,f:0.4},
   {n:"Spinach",e:"🥬",cal:23,p:2.9,c:3.6,f:0.4},
   {n:"Kale",e:"🥬",cal:49,p:4.3,c:9,f:0.9},
-  {n:"Carrot",e:"🥕",cal:41,p:0.9,c:10,f:0.2},
-  {n:"Cucumber",e:"🥒",cal:15,p:0.7,c:3.6,f:0.1},
-  {n:"Tomato",e:"🍅",cal:18,p:0.9,c:3.9,f:0.2},
-  {n:"Bell pepper",e:"🫑",cal:31,p:1,c:6,f:0.3},
-  {n:"Onion",e:"🧅",cal:40,p:1.1,c:9.3,f:0.1},
+  {n:"Carrot",e:"🥕",cal:41,p:0.9,c:10,f:0.2,pcs:61},
+  {n:"Cucumber",e:"🥒",cal:15,p:0.7,c:3.6,f:0.1,pcs:200},
+  {n:"Tomato",e:"🍅",cal:18,p:0.9,c:3.9,f:0.2,pcs:123},
+  {n:"Bell pepper",e:"🫑",cal:31,p:1,c:6,f:0.3,pcs:150},
+  {n:"Onion",e:"🧅",cal:40,p:1.1,c:9.3,f:0.1,pcs:110},
   {n:"Olive oil",e:"🫙",cal:884,p:0,c:0,f:100},
   {n:"Butter",e:"🧈",cal:717,p:0.9,c:0.1,f:81},
   {n:"Peanut butter",e:"🥜",cal:588,p:25,c:20,f:50},
-  {n:"Almonds",e:"🌰",cal:579,p:21,c:22,f:50},
-  {n:"Walnuts",e:"🌰",cal:654,p:15,c:14,f:65},
-  {n:"Cashews",e:"🌰",cal:553,p:18,c:30,f:44},
+  {n:"Almonds",e:"🌰",cal:579,p:21,c:22,f:50,pcs:1.2},
+  {n:"Walnuts",e:"🌰",cal:654,p:15,c:14,f:65,pcs:4},
+  {n:"Cashews",e:"🌰",cal:553,p:18,c:30,f:44,pcs:3},
   {n:"Chia seeds",e:"🌱",cal:486,p:17,c:42,f:31},
-  {n:"Dark chocolate (70%)",e:"🍫",cal:600,p:7.8,c:46,f:43},
+  {n:"Dark chocolate (70%)",e:"🍫",cal:600,p:7.8,c:46,f:43,pcs:5},
   {n:"Honey",e:"🍯",cal:304,p:0.3,c:82,f:0},
-  {n:"Pizza (cheese)",e:"🍕",cal:266,p:11,c:33,f:10},
+  {n:"Pizza (cheese)",e:"🍕",cal:266,p:11,c:33,f:10,pcs:107},
   {n:"French fries",e:"🍟",cal:312,p:3.4,c:41,f:15},
-  {n:"Corn",e:"🌽",cal:86,p:3.2,c:19,f:1.2},
+  {n:"Corn",e:"🌽",cal:86,p:3.2,c:19,f:1.2,pcs:90},
   {n:"Edamame",e:"🫘",cal:121,p:11,c:9,f:5.2},
   {n:"Hummus",e:"🫙",cal:166,p:8,c:14,f:10},
   {n:"White rice (dry)",e:"🍚",cal:365,p:7.1,c:80,f:0.7},
@@ -342,13 +343,51 @@ const DB=[
   {n:"Flaxseeds",e:"🌱",cal:534,p:18,c:29,f:42},
 ];
 
-let meals=[],history=[],goals={cal:2000,prot:150,carb:200,fat:65};
-let selFood=null,inputUnit='g',displayUnit='g',energyUnit='kcal',isDark=false;
 const UF={g:1,oz:28.3495,lb:453.592};
 
-function toG(v,u){return parseFloat(v)*UF[u];}
+// ── PERSISTENCE ───────────────────────────────────────────────────────
+
+function loadState(){
+  try{
+    const today=new Date().toISOString().slice(0,10);
+    const saved=JSON.parse(localStorage.getItem('caltrack_v1')||'{}');
+    // if saved meals are from a different day, archive them first then start fresh
+    if(saved.mealsDate && saved.mealsDate!==today && saved.meals && saved.meals.length){
+      const hist=saved.history||[];
+      const idx=hist.findIndex(h=>h.date===saved.mealsDate);
+      const entry={date:saved.mealsDate,meals:saved.meals,totalCal:saved.meals.reduce((s,m)=>s+m.cal,0)};
+      if(idx>=0)hist[idx]=entry; else hist.unshift(entry);
+      saved.history=hist.slice(0,60);
+      saved.meals=[];
+    }
+    return {
+      meals: saved.meals||[],
+      history: saved.history||[],
+      goals: saved.goals||{cal:2000,prot:150,carb:200,fat:65},
+      displayUnit: saved.displayUnit||'g',
+      energyUnit: saved.energyUnit||'kcal',
+      isDark: saved.isDark||false,
+      mealsDate: today,
+    };
+  }catch(e){return {meals:[],history:[],goals:{cal:2000,prot:150,carb:200,fat:65},displayUnit:'g',energyUnit:'kcal',isDark:false,mealsDate:new Date().toISOString().slice(0,10)};}
+}
+function persist(){
+  try{
+    localStorage.setItem('caltrack_v1',JSON.stringify({meals,history,goals,displayUnit,energyUnit,isDark,mealsDate:todayStr()}));
+  }catch(e){}
+}
+
+const _s=loadState();
+let meals=_s.meals, history=_s.history, goals=_s.goals;
+let selFood=null, inputUnit='g', displayUnit=_s.displayUnit, energyUnit=_s.energyUnit, isDark=_s.isDark;
+
+function toG(v,u){
+  if(u==='pcs') return parseFloat(v)*(selFood&&selFood.pcs||100);
+  return parseFloat(v)*UF[u];
+}
 function c100(val,g){return Math.round(val*g/100*10)/10;}
-function fmtW(g){
+function fmtW(g, m){
+  if(m&&m.inputUnit==='pcs') return m.inputAmt+(m.inputAmt===1?' pc':' pcs')+' ('+Math.round(g)+'g)';
   if(displayUnit==='oz')return (g/28.3495).toFixed(1)+'oz';
   if(displayUnit==='lb')return (g/453.592).toFixed(2)+'lb';
   return Math.round(g)+'g';
@@ -363,6 +402,7 @@ function toggleTheme(){
   document.documentElement.setAttribute('data-theme',isDark?'dark':'');
   document.getElementById('theme-btn').textContent=isDark?'☀️':'🌙';
   document.getElementById('theme-meta').content=isDark?'#0f0f11':'#f5f5f0';
+  persist();
 }
 
 function gotoPage(p,btn,title){
@@ -391,7 +431,13 @@ function pickFood(name){
   document.getElementById('food-search').value=selFood.n;
   document.getElementById('dd-list').style.display='none';
   document.getElementById('sel-name').textContent=selFood.e+' '+selFood.n;
-  document.getElementById('sel-chips').innerHTML=`<span class="chip chip-r">${selFood.cal} kcal</span><span class="chip chip-b">P: ${selFood.p}g</span><span class="chip chip-g">C: ${selFood.c}g</span><span class="chip chip-o">F: ${selFood.f}g</span><span class="chip chip-n">per 100g</span>`;
+  const pcsChip=selFood.pcs?`<span class="chip chip-n">1 pc ≈ ${selFood.pcs}g</span>`:'';
+  document.getElementById('sel-chips').innerHTML=`<span class="chip chip-r">${selFood.cal} kcal</span><span class="chip chip-b">P: ${selFood.p}g</span><span class="chip chip-g">C: ${selFood.c}g</span><span class="chip chip-o">F: ${selFood.f}g</span><span class="chip chip-n">per 100g</span>${pcsChip}`;
+  // show pcs button only if food has piece weight
+  const pcsBtn=document.getElementById('ub-pcs');
+  pcsBtn.style.display=selFood.pcs?'':'none';
+  // reset to g if current unit is pcs but new food has no pcs
+  if(inputUnit==='pcs'&&!selFood.pcs) setIU('g');
   document.getElementById('sel-card').style.display='block';
   document.getElementById('amt-inp').value='';
   document.getElementById('preview-bar').style.display='none';
@@ -399,7 +445,10 @@ function pickFood(name){
 }
 function setIU(u){
   inputUnit=u;
-  ['g','oz','lb'].forEach(x=>document.getElementById('ub-'+x).classList.toggle('active',x===u));
+  ['g','oz','lb','pcs'].forEach(x=>{
+    const el=document.getElementById('ub-'+x);
+    if(el) el.classList.toggle('active',x===u);
+  });
   updatePreview();
 }
 function updatePreview(){
@@ -416,14 +465,14 @@ function addMeal(){
   if(!v||v<=0){toast('Enter a valid amount');return;}
   const g=toG(v,inputUnit);
   meals.push({name:selFood.n,emoji:selFood.e,grams:g,inputAmt:v,inputUnit,cal:c100(selFood.cal,g),p:c100(selFood.p,g),c:c100(selFood.c,g),f:c100(selFood.f,g),time:new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})});
-  updateToday();saveToHistory();
+  updateToday();saveToHistory();persist();
   document.getElementById('food-search').value='';
   document.getElementById('amt-inp').value='';
   document.getElementById('sel-card').style.display='none';
   document.getElementById('preview-bar').style.display='none';
   selFood=null;toast('Added ✓');
 }
-function removeMeal(i){meals.splice(i,1);updateToday();saveToHistory();}
+function removeMeal(i){meals.splice(i,1);updateToday();saveToHistory();persist();}
 
 function updateToday(){
   const tot={cal:0,p:0,c:0,f:0};
@@ -456,7 +505,7 @@ function updateToday(){
   const ml=document.getElementById('meal-list');
   if(!meals.length){ml.innerHTML='<div class="empty-msg">No meals yet — tap + to log one</div>';return;}
   const cols=['#2563eb','#16a34a','#ea580c','#dc2626','#7c3aed','#0891b2','#d97706'];
-  ml.innerHTML=meals.map((m,i)=>`<div class="meal-entry"><div class="mavatar" style="background:${cols[i%cols.length]}22">${m.emoji}</div><div class="mbod"><div class="mnm">${m.name}</div><div class="mmeta">${fmtW(m.grams)} · ${m.time} · P:${m.p}g C:${m.c}g F:${m.f}g</div></div><div class="mkcal">${fmtEs(m.cal)}</div><button class="del-btn" onclick="removeMeal(${i})">×</button></div>`).join('');
+  ml.innerHTML=meals.map((m,i)=>`<div class="meal-entry"><div class="mavatar" style="background:${cols[i%cols.length]}22">${m.emoji}</div><div class="mbod"><div class="mnm">${m.name}</div><div class="mmeta">${fmtW(m.grams,m)} · ${m.time} · P:${m.p}g C:${m.c}g F:${m.f}g</div></div><div class="mkcal">${fmtEs(m.cal)}</div><button class="del-btn" onclick="removeMeal(${i})">×</button></div>`).join('');
 }
 
 function saveToHistory(){
@@ -512,7 +561,7 @@ function renderHistory(){
     const def2=goals.cal-h.totalCal;
     const bc=def2>100?'b-under':def2<-100?'b-over':'b-on';
     const bt=def2>100?`-${Math.abs(def2)} kcal`:def2<-100?`+${Math.abs(def2)} kcal`:'on target';
-    return `<div class="hist-day"><div class="hd-hdr" onclick="toggleHD(${hi})"><span class="hd-date">${fmtDate(h.date)}</span><div class="hd-right"><span class="hd-kcal">${fmtEs(h.totalCal)}</span><span class="hd-badge ${bc}">${bt}</span><span style="color:var(--text3);font-size:11px" id="ha-${hi}">▼</span></div></div><div class="hist-meals" id="hm-${hi}">${h.meals.map(m=>`<div class="hm-row"><span class="hm-nm">${m.emoji||''} ${m.name} · ${fmtW(m.grams)}</span><span class="hm-cal">${fmtEs(m.cal)}</span></div>`).join('')}</div></div>`;
+    return `<div class="hist-day"><div class="hd-hdr" onclick="toggleHD(${hi})"><span class="hd-date">${fmtDate(h.date)}</span><div class="hd-right"><span class="hd-kcal">${fmtEs(h.totalCal)}</span><span class="hd-badge ${bc}">${bt}</span><span style="color:var(--text3);font-size:11px" id="ha-${hi}">▼</span></div></div><div class="hist-meals" id="hm-${hi}">${h.meals.map(m=>`<div class="hm-row"><span class="hm-nm">${m.emoji||''} ${m.name} · ${fmtW(m.grams,m)}</span><span class="hm-cal">${fmtEs(m.cal)}</span></div>`).join('')}</div></div>`;
   }).join('');
 }
 
@@ -528,17 +577,17 @@ function saveGoals(){
   goals.prot=parseInt(document.getElementById('g-prot').value)||150;
   goals.carb=parseInt(document.getElementById('g-carb').value)||200;
   goals.fat=parseInt(document.getElementById('g-fat').value)||65;
-  updateToday();toast('Goals saved ✓');
+  updateToday();persist();toast('Goals saved ✓');
 }
 function setDU(u){
   displayUnit=u;
   ['g','oz','lb'].forEach(x=>document.getElementById('sw-'+x).classList.toggle('active',x===u));
-  updateToday();
+  updateToday();persist();
 }
 function setEU(u){
   energyUnit=u;
   ['kcal','kj'].forEach(x=>document.getElementById('se-'+x).classList.toggle('active',x===u));
-  updateToday();
+  updateToday();persist();
 }
 
 function toast(msg){
@@ -550,6 +599,19 @@ function toast(msg){
 document.getElementById('content').addEventListener('scroll',function(){
   document.getElementById('topbar').classList.toggle('scrolled',this.scrollTop>4);
 });
+
+// restore UI state from saved settings
+if(isDark){
+  document.documentElement.setAttribute('data-theme','dark');
+  document.getElementById('theme-btn').textContent='☀️';
+  document.getElementById('theme-meta').content='#0f0f11';
+}
+['g','oz','lb'].forEach(x=>document.getElementById('sw-'+x).classList.toggle('active',x===displayUnit));
+['kcal','kj'].forEach(x=>document.getElementById('se-'+x).classList.toggle('active',x===energyUnit));
+document.getElementById('g-cal').value=goals.cal;
+document.getElementById('g-prot').value=goals.prot;
+document.getElementById('g-carb').value=goals.carb;
+document.getElementById('g-fat').value=goals.fat;
 
 updateToday();
 </script>
