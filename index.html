@@ -114,6 +114,19 @@ body{display:flex;flex-direction:column;max-width:430px;margin:0 auto;min-height
 .preview-bar{background:rgba(37,99,235,0.08);border-radius:var(--radius-sm);padding:9px 12px;font-size:13px;color:var(--accent);font-weight:500;text-align:center;margin-bottom:10px;display:none;}
 .add-btn{width:100%;padding:13px;background:var(--accent);color:#fff;border:none;border-radius:var(--radius-sm);font-size:15px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer;transition:opacity 0.1s;}
 .add-btn:active{opacity:0.85;}
+/* MODE TOGGLE */
+.mode-toggle{display:flex;background:var(--card);border-radius:var(--radius-sm);overflow:hidden;margin-bottom:12px;box-shadow:var(--shadow);}
+.mode-btn{flex:1;padding:11px 8px;background:none;border:none;font-size:13px;font-weight:500;font-family:'DM Sans',sans-serif;cursor:pointer;color:var(--text2);transition:all 0.2s;border-bottom:2px solid transparent;}
+.mode-btn.active{color:var(--accent);border-bottom-color:var(--accent);background:var(--card2);}
+/* MANUAL FORM */
+.manual-card{background:var(--card);border-radius:var(--radius);padding:14px;margin-bottom:10px;box-shadow:var(--shadow);}
+.mf-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;}
+.mf-row.full{grid-template-columns:1fr;}
+.mf-group{display:flex;flex-direction:column;gap:4px;}
+.mf-label{font-size:11px;font-weight:600;color:var(--text3);letter-spacing:0.4px;text-transform:uppercase;}
+.mf-inp{padding:10px 12px;background:var(--bg2);border:none;border-radius:var(--radius-sm);font-size:15px;font-family:'DM Sans',sans-serif;color:var(--text);outline:none;width:100%;}
+.mf-inp:focus{box-shadow:0 0 0 2px var(--accent);}
+.mf-total{background:rgba(37,99,235,0.07);border-radius:var(--radius-sm);padding:10px 12px;font-size:13px;color:var(--accent);font-weight:500;text-align:center;margin-bottom:10px;display:none;}
 
 /* HISTORY */
 .week-box{background:var(--card);border-radius:var(--radius);padding:16px;margin-bottom:12px;box-shadow:var(--shadow);}
@@ -199,6 +212,7 @@ body{display:flex;flex-direction:column;max-width:430px;margin:0 auto;min-height
         <div class="mrow"><div class="micon" style="background:rgba(37,99,235,0.1)">🥩</div><div class="mbody"><div class="mhead"><span class="mname">Protein</span><span class="mval" id="mt-p">0 / 150g</span></div><div class="mbar-bg"><div class="mbar" id="mb-p" style="width:0%;background:var(--accent)"></div></div></div></div>
         <div class="mrow"><div class="micon" style="background:rgba(22,163,74,0.1)">🌾</div><div class="mbody"><div class="mhead"><span class="mname">Carbs</span><span class="mval" id="mt-c">0 / 200g</span></div><div class="mbar-bg"><div class="mbar" id="mb-c" style="width:0%;background:var(--green)"></div></div></div></div>
         <div class="mrow"><div class="micon" style="background:rgba(234,88,12,0.1)">🥑</div><div class="mbody"><div class="mhead"><span class="mname">Fat</span><span class="mval" id="mt-f">0 / 65g</span></div><div class="mbar-bg"><div class="mbar" id="mb-f" style="width:0%;background:var(--orange)"></div></div></div></div>
+        <div class="mrow"><div class="micon" style="background:rgba(124,58,237,0.1)">🌿</div><div class="mbody"><div class="mhead"><span class="mname">Fiber</span><span class="mval" id="mt-fi">0 / 30g</span></div><div class="mbar-bg"><div class="mbar" id="mb-fi" style="width:0%;background:var(--purple)"></div></div></div></div>
       </div>
     </div>
 
@@ -211,30 +225,86 @@ body{display:flex;flex-direction:column;max-width:430px;margin:0 auto;min-height
 
   <!-- LOG -->
   <div class="page" id="page-log">
-    <div class="search-box">
-      <span style="font-size:15px;color:var(--text3)">🔍</span>
-      <input type="text" id="food-search" placeholder="Search food (chicken, rice, banana…)" autocomplete="off" oninput="onSearch()" onblur="setTimeout(closeDD,200)">
+
+    <!-- mode toggle -->
+    <div class="mode-toggle">
+      <button class="mode-btn active" id="mmode-search" onclick="setLogMode('search')">🔍 Search food</button>
+      <button class="mode-btn" id="mmode-manual" onclick="setLogMode('manual')">✏️ Enter manually</button>
     </div>
-    <div class="dd-list" id="dd-list"></div>
-    <div class="sel-card" id="sel-card">
-      <div class="sel-food-name" id="sel-name"></div>
-      <div class="chips" id="sel-chips"></div>
-      <div class="amt-row">
-        <input class="amt-inp" type="number" id="amt-inp" placeholder="Amount…" min="1" oninput="updatePreview()">
-        <div class="useg">
-          <button class="useg-btn active" id="ub-g" onclick="setIU('g')">g</button>
-          <button class="useg-btn" id="ub-oz" onclick="setIU('oz')">oz</button>
-          <button class="useg-btn" id="ub-lb" onclick="setIU('lb')">lb</button>
-          <button class="useg-btn" id="ub-pcs" onclick="setIU('pcs')" style="display:none">pcs</button>
-        </div>
+
+    <!-- SEARCH MODE -->
+    <div id="log-search-mode">
+      <div class="search-box">
+        <span style="font-size:15px;color:var(--text3)">🔍</span>
+        <input type="text" id="food-search" placeholder="Search food (chicken, rice, banana…)" autocomplete="off" oninput="onSearch()" onblur="setTimeout(closeDD,200)">
       </div>
-      <div class="preview-bar" id="preview-bar"></div>
-      <button class="add-btn" onclick="addMeal()">Add to log</button>
+      <div class="dd-list" id="dd-list"></div>
+      <div class="sel-card" id="sel-card">
+        <div class="sel-food-name" id="sel-name"></div>
+        <div class="chips" id="sel-chips"></div>
+        <div class="amt-row">
+          <input class="amt-inp" type="number" id="amt-inp" placeholder="Amount…" min="1" oninput="updatePreview()">
+          <div class="useg">
+            <button class="useg-btn active" id="ub-g" onclick="setIU('g')">g</button>
+            <button class="useg-btn" id="ub-oz" onclick="setIU('oz')">oz</button>
+            <button class="useg-btn" id="ub-lb" onclick="setIU('lb')">lb</button>
+            <button class="useg-btn" id="ub-pcs" onclick="setIU('pcs')" style="display:none">pcs</button>
+          </div>
+        </div>
+        <div class="preview-bar" id="preview-bar"></div>
+        <button class="add-btn" onclick="addMeal()">Add to log</button>
+      </div>
+      <div class="card" style="padding:14px;color:var(--text2);font-size:13px;line-height:1.65;">
+        <strong style="color:var(--text);font-size:13px;">How it works</strong><br>
+        Search any food → select → enter amount in g, oz, lb, or pieces → calories and macros are calculated automatically. The "pcs" button appears when a food has a known piece weight (e.g. 1 egg, 1 banana).
+      </div>
     </div>
-    <div class="card" style="padding:14px;color:var(--text2);font-size:13px;line-height:1.65;">
-      <strong style="color:var(--text);font-size:13px;">How it works</strong><br>
-      Search any food → select → enter amount in g, oz, lb, or pieces → calories and macros are calculated automatically. The "pcs" button appears when a food has a known piece weight (e.g. 1 egg, 1 banana).
+
+    <!-- MANUAL MODE -->
+    <div id="log-manual-mode" style="display:none">
+      <div class="manual-card">
+        <div class="mf-row full">
+          <div class="mf-group">
+            <span class="mf-label">Food name</span>
+            <input class="mf-inp" type="text" id="mf-name" placeholder="e.g. Home-cooked pasta" oninput="updateManualTotal()">
+          </div>
+        </div>
+        <div class="mf-row">
+          <div class="mf-group">
+            <span class="mf-label">Calories (kcal)</span>
+            <input class="mf-inp" type="number" id="mf-cal" placeholder="0" min="0" oninput="updateManualTotal()">
+          </div>
+          <div class="mf-group">
+            <span class="mf-label">Protein (g)</span>
+            <input class="mf-inp" type="number" id="mf-prot" placeholder="0" min="0" oninput="updateManualTotal()">
+          </div>
+        </div>
+        <div class="mf-row">
+          <div class="mf-group">
+            <span class="mf-label">Carbs (g)</span>
+            <input class="mf-inp" type="number" id="mf-carb" placeholder="0" min="0" oninput="updateManualTotal()">
+          </div>
+          <div class="mf-group">
+            <span class="mf-label">Fat (g)</span>
+            <input class="mf-inp" type="number" id="mf-fat" placeholder="0" min="0" oninput="updateManualTotal()">
+          </div>
+        </div>
+        <div class="mf-row">
+          <div class="mf-group">
+            <span class="mf-label">Fiber (g)</span>
+            <input class="mf-inp" type="number" id="mf-fiber" placeholder="0" min="0" oninput="updateManualTotal()">
+          </div>
+          <div class="mf-group"></div>
+        </div>
+        <div class="mf-total" id="mf-total"></div>
+        <button class="add-btn" onclick="addManualMeal()">Add to log</button>
+      </div>
+      <div class="card" style="padding:14px;color:var(--text2);font-size:13px;line-height:1.65;">
+        <strong style="color:var(--text);font-size:13px;">When to use this</strong><br>
+        Use manual entry when you already know the nutrition info — like from a food label, restaurant menu, or recipe app. Just type the name and numbers and hit Add.
+      </div>
     </div>
+
     <div class="gap"></div>
   </div>
 
@@ -258,6 +328,7 @@ body{display:flex;flex-direction:column;max-width:430px;margin:0 auto;min-height
       <div class="g-row"><span class="g-lbl">Protein</span><input class="g-inp" id="g-prot" type="number" value="150"><span class="g-unit">g</span></div>
       <div class="g-row"><span class="g-lbl">Carbs</span><input class="g-inp" id="g-carb" type="number" value="200"><span class="g-unit">g</span></div>
       <div class="g-row"><span class="g-lbl">Fat</span><input class="g-inp" id="g-fat" type="number" value="65"><span class="g-unit">g</span></div>
+      <div class="g-row"><span class="g-lbl">Fiber</span><input class="g-inp" id="g-fiber" type="number" value="30"><span class="g-unit">g</span></div>
     </div>
     <div class="sec-lbl">Display units</div>
     <div class="usettings">
@@ -279,68 +350,68 @@ body{display:flex;flex-direction:column;max-width:430px;margin:0 auto;min-height
 
 <script>
 const DB=[
-  {n:"Chicken breast",e:"🍗",cal:165,p:31,c:0,f:3.6,pcs:150},
-  {n:"Chicken thigh",e:"🍗",cal:209,p:26,c:0,f:11,pcs:100},
-  {n:"Ground beef (lean)",e:"🥩",cal:215,p:26,c:0,f:12},
-  {n:"Beef steak",e:"🥩",cal:271,p:26,c:0,f:18,pcs:200},
-  {n:"Salmon",e:"🐟",cal:208,p:20,c:0,f:13,pcs:150},
-  {n:"Tuna (canned)",e:"🐟",cal:116,p:26,c:0,f:1,pcs:185},
-  {n:"Shrimp",e:"🦐",cal:99,p:24,c:0.2,f:0.3,pcs:15},
-  {n:"Whole egg",e:"🥚",cal:155,p:13,c:1.1,f:11,pcs:55},
-  {n:"Egg white",e:"🥚",cal:52,p:11,c:0.7,f:0.2,pcs:33},
-  {n:"Greek yogurt (full fat)",e:"🥛",cal:97,p:9,c:3.6,f:5},
-  {n:"Greek yogurt (0% fat)",e:"🥛",cal:59,p:10,c:3.6,f:0.4},
-  {n:"Cottage cheese",e:"🧀",cal:98,p:11,c:3.4,f:4.3},
-  {n:"Cheddar cheese",e:"🧀",cal:403,p:25,c:1.3,f:33,pcs:28},
-  {n:"Milk (whole)",e:"🥛",cal:61,p:3.2,c:4.8,f:3.3},
-  {n:"Milk (skim)",e:"🥛",cal:35,p:3.4,c:5,f:0.1},
-  {n:"Whey protein powder",e:"💪",cal:370,p:80,c:6,f:4,pcs:30},
-  {n:"Tofu (firm)",e:"🫘",cal:76,p:8,c:1.9,f:4.2},
-  {n:"Lentils (cooked)",e:"🫘",cal:116,p:9,c:20,f:0.4},
-  {n:"Chickpeas (cooked)",e:"🫘",cal:164,p:8.9,c:27,f:2.6},
-  {n:"Black beans",e:"🫘",cal:132,p:8.9,c:24,f:0.5},
-  {n:"White rice (cooked)",e:"🍚",cal:130,p:2.7,c:28,f:0.3},
-  {n:"Brown rice (cooked)",e:"🍚",cal:111,p:2.6,c:23,f:0.9},
-  {n:"Oats (dry)",e:"🌾",cal:389,p:17,c:66,f:7},
-  {n:"Oatmeal (cooked)",e:"🥣",cal:71,p:2.5,c:12,f:1.5},
-  {n:"Pasta (cooked)",e:"🍝",cal:131,p:5,c:25,f:1.1},
-  {n:"White bread",e:"🍞",cal:265,p:9,c:49,f:3.2,pcs:30},
-  {n:"Whole wheat bread",e:"🍞",cal:247,p:13,c:41,f:4.2,pcs:30},
-  {n:"Potato (boiled)",e:"🥔",cal:87,p:1.9,c:20,f:0.1,pcs:150},
-  {n:"Sweet potato",e:"🍠",cal:90,p:2,c:21,f:0.1,pcs:130},
-  {n:"Quinoa (cooked)",e:"🌾",cal:120,p:4.4,c:22,f:1.9},
-  {n:"Banana",e:"🍌",cal:89,p:1.1,c:23,f:0.3,pcs:120},
-  {n:"Apple",e:"🍎",cal:52,p:0.3,c:14,f:0.2,pcs:182},
-  {n:"Orange",e:"🍊",cal:47,p:0.9,c:12,f:0.1,pcs:130},
-  {n:"Blueberries",e:"🫐",cal:57,p:0.7,c:14,f:0.3},
-  {n:"Strawberries",e:"🍓",cal:32,p:0.7,c:7.7,f:0.3,pcs:12},
-  {n:"Mango",e:"🥭",cal:60,p:0.8,c:15,f:0.4,pcs:200},
-  {n:"Avocado",e:"🥑",cal:160,p:2,c:9,f:15,pcs:150},
-  {n:"Broccoli",e:"🥦",cal:35,p:2.4,c:7.2,f:0.4},
-  {n:"Spinach",e:"🥬",cal:23,p:2.9,c:3.6,f:0.4},
-  {n:"Kale",e:"🥬",cal:49,p:4.3,c:9,f:0.9},
-  {n:"Carrot",e:"🥕",cal:41,p:0.9,c:10,f:0.2,pcs:61},
-  {n:"Cucumber",e:"🥒",cal:15,p:0.7,c:3.6,f:0.1,pcs:200},
-  {n:"Tomato",e:"🍅",cal:18,p:0.9,c:3.9,f:0.2,pcs:123},
-  {n:"Bell pepper",e:"🫑",cal:31,p:1,c:6,f:0.3,pcs:150},
-  {n:"Onion",e:"🧅",cal:40,p:1.1,c:9.3,f:0.1,pcs:110},
-  {n:"Olive oil",e:"🫙",cal:884,p:0,c:0,f:100},
-  {n:"Butter",e:"🧈",cal:717,p:0.9,c:0.1,f:81},
-  {n:"Peanut butter",e:"🥜",cal:588,p:25,c:20,f:50},
-  {n:"Almonds",e:"🌰",cal:579,p:21,c:22,f:50,pcs:1.2},
-  {n:"Walnuts",e:"🌰",cal:654,p:15,c:14,f:65,pcs:4},
-  {n:"Cashews",e:"🌰",cal:553,p:18,c:30,f:44,pcs:3},
-  {n:"Chia seeds",e:"🌱",cal:486,p:17,c:42,f:31},
-  {n:"Dark chocolate (70%)",e:"🍫",cal:600,p:7.8,c:46,f:43,pcs:5},
-  {n:"Honey",e:"🍯",cal:304,p:0.3,c:82,f:0},
-  {n:"Pizza (cheese)",e:"🍕",cal:266,p:11,c:33,f:10,pcs:107},
-  {n:"French fries",e:"🍟",cal:312,p:3.4,c:41,f:15},
-  {n:"Corn",e:"🌽",cal:86,p:3.2,c:19,f:1.2,pcs:90},
-  {n:"Edamame",e:"🫘",cal:121,p:11,c:9,f:5.2},
-  {n:"Hummus",e:"🫙",cal:166,p:8,c:14,f:10},
-  {n:"White rice (dry)",e:"🍚",cal:365,p:7.1,c:80,f:0.7},
-  {n:"Almond butter",e:"🥜",cal:614,p:21,c:19,f:56},
-  {n:"Flaxseeds",e:"🌱",cal:534,p:18,c:29,f:42},
+  {n:"Chicken breast",e:"🍗",cal:165,p:31,c:0,f:3.6,fi:0,pcs:150},
+  {n:"Chicken thigh",e:"🍗",cal:209,p:26,c:0,f:11,fi:0,pcs:100},
+  {n:"Ground beef (lean)",e:"🥩",cal:215,p:26,c:0,f:12,fi:0},
+  {n:"Beef steak",e:"🥩",cal:271,p:26,c:0,f:18,fi:0,pcs:200},
+  {n:"Salmon",e:"🐟",cal:208,p:20,c:0,f:13,fi:0,pcs:150},
+  {n:"Tuna (canned)",e:"🐟",cal:116,p:26,c:0,f:1,fi:0,pcs:185},
+  {n:"Shrimp",e:"🦐",cal:99,p:24,c:0.2,f:0.3,fi:0,pcs:15},
+  {n:"Whole egg",e:"🥚",cal:155,p:13,c:1.1,f:11,fi:0,pcs:55},
+  {n:"Egg white",e:"🥚",cal:52,p:11,c:0.7,f:0.2,fi:0,pcs:33},
+  {n:"Greek yogurt (full fat)",e:"🥛",cal:97,p:9,c:3.6,f:5,fi:0},
+  {n:"Greek yogurt (0% fat)",e:"🥛",cal:59,p:10,c:3.6,f:0.4,fi:0},
+  {n:"Cottage cheese",e:"🧀",cal:98,p:11,c:3.4,f:4.3,fi:0},
+  {n:"Cheddar cheese",e:"🧀",cal:403,p:25,c:1.3,f:33,fi:0,pcs:28},
+  {n:"Milk (whole)",e:"🥛",cal:61,p:3.2,c:4.8,f:3.3,fi:0},
+  {n:"Milk (skim)",e:"🥛",cal:35,p:3.4,c:5,f:0.1,fi:0},
+  {n:"Whey protein powder",e:"💪",cal:370,p:80,c:6,f:4,fi:0,pcs:30},
+  {n:"Tofu (firm)",e:"🫘",cal:76,p:8,c:1.9,f:4.2,fi:0.3},
+  {n:"Lentils (cooked)",e:"🫘",cal:116,p:9,c:20,f:0.4,fi:7.9},
+  {n:"Chickpeas (cooked)",e:"🫘",cal:164,p:8.9,c:27,f:2.6,fi:7.6},
+  {n:"Black beans",e:"🫘",cal:132,p:8.9,c:24,f:0.5,fi:8.7},
+  {n:"White rice (cooked)",e:"🍚",cal:130,p:2.7,c:28,f:0.3,fi:0.4},
+  {n:"Brown rice (cooked)",e:"🍚",cal:111,p:2.6,c:23,f:0.9,fi:1.8},
+  {n:"Oats (dry)",e:"🌾",cal:389,p:17,c:66,f:7,fi:10.6},
+  {n:"Oatmeal (cooked)",e:"🥣",cal:71,p:2.5,c:12,f:1.5,fi:1.7},
+  {n:"Pasta (cooked)",e:"🍝",cal:131,p:5,c:25,f:1.1,fi:1.8},
+  {n:"White bread",e:"🍞",cal:265,p:9,c:49,f:3.2,fi:2.7,pcs:30},
+  {n:"Whole wheat bread",e:"🍞",cal:247,p:13,c:41,f:4.2,fi:7,pcs:30},
+  {n:"Potato (boiled)",e:"🥔",cal:87,p:1.9,c:20,f:0.1,fi:1.8,pcs:150},
+  {n:"Sweet potato",e:"🍠",cal:90,p:2,c:21,f:0.1,fi:3,pcs:130},
+  {n:"Quinoa (cooked)",e:"🌾",cal:120,p:4.4,c:22,f:1.9,fi:2.8},
+  {n:"Banana",e:"🍌",cal:89,p:1.1,c:23,f:0.3,fi:2.6,pcs:120},
+  {n:"Apple",e:"🍎",cal:52,p:0.3,c:14,f:0.2,fi:2.4,pcs:182},
+  {n:"Orange",e:"🍊",cal:47,p:0.9,c:12,f:0.1,fi:2.4,pcs:130},
+  {n:"Blueberries",e:"🫐",cal:57,p:0.7,c:14,f:0.3,fi:2.4},
+  {n:"Strawberries",e:"🍓",cal:32,p:0.7,c:7.7,f:0.3,fi:2,pcs:12},
+  {n:"Mango",e:"🥭",cal:60,p:0.8,c:15,f:0.4,fi:1.6,pcs:200},
+  {n:"Avocado",e:"🥑",cal:160,p:2,c:9,f:15,fi:6.7,pcs:150},
+  {n:"Broccoli",e:"🥦",cal:35,p:2.4,c:7.2,f:0.4,fi:2.6},
+  {n:"Spinach",e:"🥬",cal:23,p:2.9,c:3.6,f:0.4,fi:2.2},
+  {n:"Kale",e:"🥬",cal:49,p:4.3,c:9,f:0.9,fi:3.6},
+  {n:"Carrot",e:"🥕",cal:41,p:0.9,c:10,f:0.2,fi:2.8,pcs:61},
+  {n:"Cucumber",e:"🥒",cal:15,p:0.7,c:3.6,f:0.1,fi:0.5,pcs:200},
+  {n:"Tomato",e:"🍅",cal:18,p:0.9,c:3.9,f:0.2,fi:1.2,pcs:123},
+  {n:"Bell pepper",e:"🫑",cal:31,p:1,c:6,f:0.3,fi:2.1,pcs:150},
+  {n:"Onion",e:"🧅",cal:40,p:1.1,c:9.3,f:0.1,fi:1.7,pcs:110},
+  {n:"Olive oil",e:"🫙",cal:884,p:0,c:0,f:100,fi:0},
+  {n:"Butter",e:"🧈",cal:717,p:0.9,c:0.1,f:81,fi:0},
+  {n:"Peanut butter",e:"🥜",cal:588,p:25,c:20,f:50,fi:6},
+  {n:"Almonds",e:"🌰",cal:579,p:21,c:22,f:50,fi:12.5,pcs:1.2},
+  {n:"Walnuts",e:"🌰",cal:654,p:15,c:14,f:65,fi:6.7,pcs:4},
+  {n:"Cashews",e:"🌰",cal:553,p:18,c:30,f:44,fi:3.3,pcs:3},
+  {n:"Chia seeds",e:"🌱",cal:486,p:17,c:42,f:31,fi:34.4},
+  {n:"Dark chocolate (70%)",e:"🍫",cal:600,p:7.8,c:46,f:43,fi:10.9,pcs:5},
+  {n:"Honey",e:"🍯",cal:304,p:0.3,c:82,f:0,fi:0.2},
+  {n:"Pizza (cheese)",e:"🍕",cal:266,p:11,c:33,f:10,fi:2.3,pcs:107},
+  {n:"French fries",e:"🍟",cal:312,p:3.4,c:41,f:15,fi:3.8},
+  {n:"Corn",e:"🌽",cal:86,p:3.2,c:19,f:1.2,fi:2.7,pcs:90},
+  {n:"Edamame",e:"🫘",cal:121,p:11,c:9,f:5.2,fi:5.2},
+  {n:"Hummus",e:"🫙",cal:166,p:8,c:14,f:10,fi:6},
+  {n:"White rice (dry)",e:"🍚",cal:365,p:7.1,c:80,f:0.7,fi:1.3},
+  {n:"Almond butter",e:"🥜",cal:614,p:21,c:19,f:56,fi:10.3},
+  {n:"Flaxseeds",e:"🌱",cal:534,p:18,c:29,f:42,fi:27.3},
 ];
 
 const UF={g:1,oz:28.3495,lb:453.592};
@@ -363,7 +434,7 @@ function loadState(){
     return {
       meals: saved.meals||[],
       history: saved.history||[],
-      goals: saved.goals||{cal:2000,prot:150,carb:200,fat:65},
+      goals: saved.goals||{cal:2000,prot:150,carb:200,fat:65,fiber:30},
       displayUnit: saved.displayUnit||'g',
       energyUnit: saved.energyUnit||'kcal',
       isDark: saved.isDark||false,
@@ -387,6 +458,7 @@ function toG(v,u){
 }
 function c100(val,g){return Math.round(val*g/100*10)/10;}
 function fmtW(g, m){
+  if(m&&m.inputUnit==='manual') return 'manual entry';
   if(m&&m.inputUnit==='pcs') return m.inputAmt+(m.inputAmt===1?' pc':' pcs')+' ('+Math.round(g)+'g)';
   if(displayUnit==='oz')return (g/28.3495).toFixed(1)+'oz';
   if(displayUnit==='lb')return (g/453.592).toFixed(2)+'lb';
@@ -432,7 +504,7 @@ function pickFood(name){
   document.getElementById('dd-list').style.display='none';
   document.getElementById('sel-name').textContent=selFood.e+' '+selFood.n;
   const pcsChip=selFood.pcs?`<span class="chip chip-n">1 pc ≈ ${selFood.pcs}g</span>`:'';
-  document.getElementById('sel-chips').innerHTML=`<span class="chip chip-r">${selFood.cal} kcal</span><span class="chip chip-b">P: ${selFood.p}g</span><span class="chip chip-g">C: ${selFood.c}g</span><span class="chip chip-o">F: ${selFood.f}g</span><span class="chip chip-n">per 100g</span>${pcsChip}`;
+  document.getElementById('sel-chips').innerHTML=`<span class="chip chip-r">${selFood.cal} kcal</span><span class="chip chip-b">P: ${selFood.p}g</span><span class="chip chip-g">C: ${selFood.c}g</span><span class="chip chip-o">F: ${selFood.f}g</span><span class="chip" style="background:rgba(124,58,237,0.1);color:var(--purple)">Fi: ${selFood.fi||0}g</span><span class="chip chip-n">per 100g</span>${pcsChip}`;
   // show pcs button only if food has piece weight
   const pcsBtn=document.getElementById('ub-pcs');
   pcsBtn.style.display=selFood.pcs?'':'none';
@@ -457,14 +529,14 @@ function updatePreview(){
   if(!selFood||!v||v<=0){pb.style.display='none';return;}
   const g=toG(v,inputUnit);
   pb.style.display='block';
-  pb.textContent=`${fmtE(c100(selFood.cal,g))} · P:${c100(selFood.p,g)}g · C:${c100(selFood.c,g)}g · F:${c100(selFood.f,g)}g`;
+  pb.textContent=`${fmtE(c100(selFood.cal,g))} · P:${c100(selFood.p,g)}g · C:${c100(selFood.c,g)}g · F:${c100(selFood.f,g)}g · Fiber:${c100(selFood.fi||0,g)}g`;
 }
 function addMeal(){
   if(!selFood){toast('Select a food first');return;}
   const v=parseFloat(document.getElementById('amt-inp').value);
   if(!v||v<=0){toast('Enter a valid amount');return;}
   const g=toG(v,inputUnit);
-  meals.push({name:selFood.n,emoji:selFood.e,grams:g,inputAmt:v,inputUnit,cal:c100(selFood.cal,g),p:c100(selFood.p,g),c:c100(selFood.c,g),f:c100(selFood.f,g),time:new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})});
+  meals.push({name:selFood.n,emoji:selFood.e,grams:g,inputAmt:v,inputUnit,cal:c100(selFood.cal,g),p:c100(selFood.p,g),c:c100(selFood.c,g),f:c100(selFood.f,g),fi:c100(selFood.fi||0,g),time:new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})});
   updateToday();saveToHistory();persist();
   document.getElementById('food-search').value='';
   document.getElementById('amt-inp').value='';
@@ -474,9 +546,54 @@ function addMeal(){
 }
 function removeMeal(i){meals.splice(i,1);updateToday();saveToHistory();persist();}
 
+function setLogMode(mode){
+  document.getElementById('log-search-mode').style.display=mode==='search'?'':'none';
+  document.getElementById('log-manual-mode').style.display=mode==='manual'?'':'none';
+  document.getElementById('mmode-search').classList.toggle('active',mode==='search');
+  document.getElementById('mmode-manual').classList.toggle('active',mode==='manual');
+}
+
+function updateManualTotal(){
+  const cal=parseFloat(document.getElementById('mf-cal').value)||0;
+  const p=parseFloat(document.getElementById('mf-prot').value)||0;
+  const c=parseFloat(document.getElementById('mf-carb').value)||0;
+  const f=parseFloat(document.getElementById('mf-fat').value)||0;
+  const fi=parseFloat(document.getElementById('mf-fiber').value)||0;
+  const el=document.getElementById('mf-total');
+  if(!cal&&!p&&!c&&!f&&!fi){el.style.display='none';return;}
+  el.style.display='block';
+  el.textContent=`${fmtE(cal)} · P:${p}g · C:${c}g · F:${f}g · Fiber:${fi}g`;
+}
+
+function addManualMeal(){
+  const name=document.getElementById('mf-name').value.trim();
+  const cal=parseFloat(document.getElementById('mf-cal').value)||0;
+  const p=parseFloat(document.getElementById('mf-prot').value)||0;
+  const c=parseFloat(document.getElementById('mf-carb').value)||0;
+  const f=parseFloat(document.getElementById('mf-fat').value)||0;
+  const fi=parseFloat(document.getElementById('mf-fiber').value)||0;
+  if(!name){toast('Enter a food name');return;}
+  if(!cal&&!p&&!c&&!f&&!fi){toast('Enter at least one value');return;}
+  meals.push({
+    name, emoji:'📝', grams:0,
+    inputAmt:0, inputUnit:'manual',
+    cal, p, c, f, fi,
+    time:new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})
+  });
+  updateToday();saveToHistory();persist();
+  document.getElementById('mf-name').value='';
+  document.getElementById('mf-cal').value='';
+  document.getElementById('mf-prot').value='';
+  document.getElementById('mf-carb').value='';
+  document.getElementById('mf-fat').value='';
+  document.getElementById('mf-fiber').value='';
+  document.getElementById('mf-total').style.display='none';
+  toast('Added ✓');
+}
+
 function updateToday(){
-  const tot={cal:0,p:0,c:0,f:0};
-  meals.forEach(m=>{tot.cal+=m.cal;tot.p+=m.p;tot.c+=m.c;tot.f+=m.f;});
+  const tot={cal:0,p:0,c:0,f:0,fi:0};
+  meals.forEach(m=>{tot.cal+=m.cal;tot.p+=m.p;tot.c+=m.c;tot.f+=m.f;tot.fi+=(m.fi||0);});
   const eGoal=energyUnit==='kj'?Math.round(goals.cal*4.184):goals.cal;
   const eTot=energyUnit==='kj'?Math.round(tot.cal*4.184):Math.round(tot.cal);
   const eRem=Math.max(0,eGoal-eTot);
@@ -496,16 +613,19 @@ function updateToday(){
   const pp=Math.min(100,Math.round(tot.p/goals.prot*100));
   const cp=Math.min(100,Math.round(tot.c/goals.carb*100));
   const fp=Math.min(100,Math.round(tot.f/goals.fat*100));
+  const fip=Math.min(100,Math.round(tot.fi/(goals.fiber||30)*100));
   document.getElementById('mb-p').style.width=pp+'%';
   document.getElementById('mb-c').style.width=cp+'%';
   document.getElementById('mb-f').style.width=fp+'%';
+  document.getElementById('mb-fi').style.width=fip+'%';
   document.getElementById('mt-p').textContent=Math.round(tot.p)+' / '+goals.prot+'g';
   document.getElementById('mt-c').textContent=Math.round(tot.c)+' / '+goals.carb+'g';
   document.getElementById('mt-f').textContent=Math.round(tot.f)+' / '+goals.fat+'g';
+  document.getElementById('mt-fi').textContent=Math.round(tot.fi)+' / '+(goals.fiber||30)+'g';
   const ml=document.getElementById('meal-list');
   if(!meals.length){ml.innerHTML='<div class="empty-msg">No meals yet — tap + to log one</div>';return;}
   const cols=['#2563eb','#16a34a','#ea580c','#dc2626','#7c3aed','#0891b2','#d97706'];
-  ml.innerHTML=meals.map((m,i)=>`<div class="meal-entry"><div class="mavatar" style="background:${cols[i%cols.length]}22">${m.emoji}</div><div class="mbod"><div class="mnm">${m.name}</div><div class="mmeta">${fmtW(m.grams,m)} · ${m.time} · P:${m.p}g C:${m.c}g F:${m.f}g</div></div><div class="mkcal">${fmtEs(m.cal)}</div><button class="del-btn" onclick="removeMeal(${i})">×</button></div>`).join('');
+  ml.innerHTML=meals.map((m,i)=>`<div class="meal-entry"><div class="mavatar" style="background:${cols[i%cols.length]}22">${m.emoji}</div><div class="mbod"><div class="mnm">${m.name}</div><div class="mmeta">${fmtW(m.grams,m)} · ${m.time} · P:${m.p}g C:${m.c}g F:${m.f}g Fi:${m.fi||0}g</div></div><div class="mkcal">${fmtEs(m.cal)}</div><button class="del-btn" onclick="removeMeal(${i})">×</button></div>`).join('');
 }
 
 function saveToHistory(){
@@ -577,6 +697,7 @@ function saveGoals(){
   goals.prot=parseInt(document.getElementById('g-prot').value)||150;
   goals.carb=parseInt(document.getElementById('g-carb').value)||200;
   goals.fat=parseInt(document.getElementById('g-fat').value)||65;
+  goals.fiber=parseInt(document.getElementById('g-fiber').value)||30;
   updateToday();persist();toast('Goals saved ✓');
 }
 function setDU(u){
@@ -612,6 +733,7 @@ document.getElementById('g-cal').value=goals.cal;
 document.getElementById('g-prot').value=goals.prot;
 document.getElementById('g-carb').value=goals.carb;
 document.getElementById('g-fat').value=goals.fat;
+document.getElementById('g-fiber').value=goals.fiber||30;
 
 updateToday();
 </script>
